@@ -13,6 +13,11 @@ class Node(object):
         self.children.append(obj)
        #print 'child added'
 
+counter_no_some = 0
+counter_nodes = 0
+counter_roots = 0
+counter_in_tree = 0
+counter_level = 1
 
 def isInstanceOfTaxon(json_l):
 	#check if the things we will look for are actually there (otherwise there are errors, e.g. when there is no datavalue attribute)
@@ -55,17 +60,37 @@ def printChildren(parent):
 	print ' --------------------------------'
 
 
+def writeHTML( root ):
+	f = open('index.html', 'w')
+	writeHead(f)
+	counter_level = 1
+	traversing(root, f, counter_level)
+	writeEnd(f)
+
+def writeHead(file):
+	file.write('<!DOCTYPE html>' + '\n' + '<html>' + '\n' + '<body>' + '\n')
+
+def writeEnd(file):
+	file.write('</body>' + '\n' + '</html>')
+
+
+def traversing( node, f, counter_level ):
+	#global counter_level
+	f.write('<ul class="level' + str(counter_level) + '">' + '\n')
+	f.write('<li>' + node.data + '</li>' + '\n')
+	counter_level += 1
+	for c in node.children:
+		traversing(c, f, counter_level)
+		global counter_in_tree
+		counter_in_tree = counter_in_tree + 1
+
 
 #here starts the actual important stuff
-f = gzip.open('20140721.json.gz')
+f = gzip.open('20140922.json.gz')
 node_dict = {} #list of the nodes already added to the tree
 root_array = []
 no_some_value_node = Node('NoSomeValue')
 node_dict['no_some'] = no_some_value_node
-
-counter_no_some = 0
-counter_nodes = 0
-counter_roots = 0
 
 for line in f:
 	line = line.rstrip().rstrip(',')
@@ -85,12 +110,13 @@ for line in f:
 			node_dict[child_id] = child
 			counter_nodes = counter_nodes + 1
 	
-		#check if there is a parent taxon (P171) for this item
-		if hasParentTaxon(json_l) or hasSubclassOf(json_l):
+		#check if there is a parent taxon (P171) for this item or if it is a subclass of antother taxon
+		if hasParentTaxon(json_l): #or hasSubclassOf(json_l):
 			if hasParentTaxon(json_l):
 				parent_id = 'Q' + str(json_l['claims']['P171'][0]['mainsnak']['datavalue']['value']['numeric-id'])
-			else: #hasSubclassOf(json_l):
-				parent_id = 'Q' + str(json_l['claims']['P279'][0]['mainsnak']['datavalue']['value']['numeric-id'])
+			#else: #hasSubclassOf(json_l):
+			# check if parent is also a taxon
+			#	parent_id = 'Q' + str(json_l['claims']['P279'][0]['mainsnak']['datavalue']['value']['numeric-id'])
 			
 			if node_dict.has_key(parent_id):
 				parent = node_dict[parent_id]
@@ -112,19 +138,23 @@ for line in f:
 			counter_roots = counter_roots + 1
 
 count_r_ch = 0
-new_file = open('roots.txt', 'w')
+#new_file = open('roots.txt', 'w')
 for r in root_array:
+	if r.data == 'Q2382443':
+		writeHTML(r)
+		#traversing(r)
 	if r.children: #check if the "root" actually has children
-		print 'Writing root to file'
-		new_file.write(str(r.data) + ' ')
+#		print 'Writing root to file'
+#		new_file.write(str(r.data) + ' ')
 		count_r_ch = count_r_ch + 1
 
-new_file.close()
+#new_file.close()
 
 print "Nodes: " + str(counter_nodes)
 print "Roots: " + str(counter_roots)
-print "Roots, excluding roots without children: " + count_r_ch
+print "Roots, excluding roots without children: " + str(count_r_ch)
 print "Nodes with parent taxon no or some value: " + str(counter_no_some)
+print "Nodes in Biota Tree: " + str(counter_in_tree)
 #print ', '.join(root_array)
 
 
