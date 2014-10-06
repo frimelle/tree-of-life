@@ -76,8 +76,8 @@ def writeEnd(file):
 
 def traversing( node, f, counter_level ):
 	#global counter_level
-	f.write('<ul class="level' + str(counter_level) + '">' + '\n')
-	f.write('<li>' + node.data + '</li>' + '\n')
+	#f.write('<ul class="level' + str(counter_level) + '">' + '\n')
+	f.write('<li class="level' + str(counter_level) + '">' + node.data + '</li>' + '\n')
 	counter_level += 1
 	for c in node.children:
 		traversing(c, f, counter_level)
