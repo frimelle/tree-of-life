@@ -83,6 +83,7 @@ def writeEnd(file):
 def writeDB( child, level, parent ):
 	cur = db.cursor() 
 	cur.execute("""INSERT INTO node (child, level, parent) VALUES (%s, %s, %s);""", (child, level, parent))
+	db.commit()
 
 
 def traversing( node, f, counter_level ):
