@@ -1,7 +1,14 @@
 # This Python file uses the following encoding: utf-8
-
+#!/usr/bin/python
 import gzip 
 import json
+import MySQLdb
+
+db = MySQLdb.connect(host="localhost", # your host, usually localhost
+				     user="root", # your username
+                     passwd="password", # your password
+                     db="tree_db") # name of the data base
+
 
 #put this in another file- learn about python's import!! 
 class Node(object):
@@ -73,6 +80,10 @@ def writeHead(file):
 def writeEnd(file):
 	file.write('</body>' + '\n' + '</html>')
 
+def writeDB( child, level, parent ):
+	cur = db.cursor() 
+	cur.execute("""INSERT INTO node (child, level, parent) VALUES (%s, %s, %s);""", (child, level, parent))
+
 
 def traversing( node, f, counter_level ):
 	#global counter_level
@@ -80,6 +91,7 @@ def traversing( node, f, counter_level ):
 	f.write('<li class="level' + str(counter_level) + '">' + node.data + '</li>' + '\n')
 	counter_level += 1
 	for c in node.children:
+		writeDB(c.data, counter_level, node.data)   #here I am writing the things to the database
 		traversing(c, f, counter_level)
 		global counter_in_tree
 		counter_in_tree = counter_in_tree + 1
