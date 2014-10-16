@@ -4,10 +4,10 @@ import gzip
 import json
 import MySQLdb
 
-db = MySQLdb.connect(host="localhost", # your host, usually localhost
-				     user="root", # your username
-                     passwd="password", # your password
-                     db="tree_db") # name of the data base
+db = MySQLdb.connect(host="localhost", 
+				     user="root", 
+                     passwd="password", 
+                     db="tree_db") 
 
 
 #put this in another file- learn about python's import!! 
@@ -75,9 +75,17 @@ def writeHTML( root ):
 	writeEnd(f)
 
 def writeHead(file):
-	file.write('<!DOCTYPE html>' + '\n' + '<html>' + '\n' + '<body>' + '\n')
+	file.write('<!DOCTYPE html>' + '\n' + '<head>')
+	file.write('<title>Tree of Life Wikidata</title>')
+	file.write('<link rel="stylesheet" type="text/css" href="style.css">')
+	file.write('</head>')
+	file.write('<html>' + '\n' + '<body>' + '\n')
+	file.write('<ul class="collapsibleList">' + '\n')
+	#file.write('<li>')
 
 def writeEnd(file):
+	#file.write('</li>')
+	file.write('</ul>' + '\n')
 	file.write('</body>' + '\n' + '</html>')
 
 def writeDB( child, level, parent ):
@@ -89,17 +97,22 @@ def writeDB( child, level, parent ):
 def traversing( node, f, counter_level ):
 	#global counter_level
 	#f.write('<ul class="level' + str(counter_level) + '">' + '\n')
-	f.write('<li class="level' + str(counter_level) + '">' + node.data + '</li>' + '\n')
+	if counter_level <= 5:
+		f.write('<li class="level' + str(counter_level) + '">' + node.data + '</li>' + '\n')
 	counter_level += 1
+	if counter_level <= 5: 
+		f.write('<ul>')
 	for c in node.children:
-		writeDB(c.data, counter_level, node.data)   #here I am writing the things to the database
+		#writeDB(c.data, counter_level, node.data)   #here I am writing the things to the database
 		traversing(c, f, counter_level)
 		global counter_in_tree
 		counter_in_tree = counter_in_tree + 1
+	if counter_level <= 3:
+		f.write('</ul>')
 
 
 #here starts the actual important stuff
-f = gzip.open('20140922.json.gz')
+f = gzip.open('20141013.json.gz')
 node_dict = {} #list of the nodes already added to the tree
 root_array = []
 no_some_value_node = Node('NoSomeValue')
@@ -168,6 +181,3 @@ print "Roots: " + str(counter_roots)
 print "Roots, excluding roots without children: " + str(count_r_ch)
 print "Nodes with parent taxon no or some value: " + str(counter_no_some)
 print "Nodes in Biota Tree: " + str(counter_in_tree)
-#print ', '.join(root_array)
-
-
