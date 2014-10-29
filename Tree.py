@@ -5,7 +5,7 @@ import json
 import MySQLdb
 
 db = MySQLdb.connect(host="localhost", 
-				     user="root", 
+		     user="root", 
                      passwd="password", 
                      db="tree_db",
                      use_unicode=True, 
