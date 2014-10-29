@@ -9,9 +9,9 @@ __email__ = "lucie.kaffee@gmail.com"
 __license__ = "GNU GPL v2+"
 
 db = MySQLdb.connect(host="localhost", 
-				     user="root", 
+		     user="root", 
                      passwd="password", 
-                     db="tree_db2",
+                     db="tree_db",
                      use_unicode=True, 
                      charset="utf8")
 
