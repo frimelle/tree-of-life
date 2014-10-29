@@ -48,7 +48,7 @@ def writeDB( child, name, parent ):
 
 
 #here starts the actual important stuff
-f = gzip.open('20141013.json.gz')
+f = gzip.open('wikidump.json.gz')
 for line in f:
 	line = line.rstrip().rstrip(',')
 	try:

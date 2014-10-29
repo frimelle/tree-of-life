@@ -101,7 +101,7 @@ def traversing( node ):
 
 
 #here starts the actual important stuff
-f = gzip.open('20141013.json.gz')
+f = gzip.open('wikidump.json.gz')
 node_dict = {} #list of the nodes already added to the tree
 root_array = []
 no_some_value_node = Node('NoSomeValue', "")
