@@ -25,7 +25,7 @@ counter_nodes = 0
 counter_roots = 0
 counter_in_tree = 0
 
-def connectDB:
+def connectDB():
 	db = MySQLdb.connect(host="localhost", 
 		    		 user="root", 
                      passwd="password", 
