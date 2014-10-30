@@ -8,13 +8,6 @@ __author__ = "Lucie-Aimée Kaffee"
 __email__ = "lucie.kaffee@gmail.com"
 __license__ = "GNU GPL v2+"
 
-db = MySQLdb.connect(host="localhost", 
-		     user="root", 
-                     passwd="password", 
-                     db="tree_db",
-                     use_unicode=True, 
-                     charset="utf8")
-
 
 #put this in another file- learn about python's import!! 
 class Node(object):
@@ -31,6 +24,34 @@ counter_no_some = 0
 counter_nodes = 0
 counter_roots = 0
 counter_in_tree = 0
+
+def connectDB:
+	db = MySQLdb.connect(host="localhost", 
+		    		 user="root", 
+                     passwd="password", 
+                     db="tree_db",
+                     use_unicode=True, 
+                     charset="utf8")
+
+
+def writeDB( child, name, parent, hasChildren ):
+	connectDB()
+	cur = db.cursor() 
+	cur.execute("""INSERT INTO node (child, name, parent, hasChildren) VALUES (%s, %s, %s, %s);""", (child, name, parent, hasChildren))
+	db.commit()
+
+in_db = []
+def traversing( node ):
+	for c in node.children:
+		hasChildren = False
+		if c.children:
+			hasChildren = True
+		if c.data not in in_db: 
+			writeDB(c.data, c.name, node.data, hasChildren)   #here I am writing the things to the database
+			in_db.append(c.data)
+		traversing( c )
+		global counter_in_tree
+		counter_in_tree = counter_in_tree + 1
 
 def isInstanceOfTaxon(json_l):
 	#check if the things we will look for are actually there (otherwise there are errors, e.g. when there is no datavalue attribute)
@@ -79,25 +100,6 @@ def printChildren(parent):
 	print ' --------------------------------'
 	print x 
 	print ' --------------------------------'
-
-
-def writeDB( child, name, parent, hasChildren ):
-	cur = db.cursor() 
-	cur.execute("""INSERT INTO node (child, name, parent, hasChildren) VALUES (%s, %s, %s, %s);""", (child, name, parent, hasChildren))
-	db.commit()
-
-in_db = []
-def traversing( node ):
-	for c in node.children:
-		hasChildren = False
-		if c.children:
-			hasChildren = True
-		if c.data not in in_db: 
-			writeDB(c.data, c.name, node.data, hasChildren)   #here I am writing the things to the database
-			in_db.append(c.data)
-		traversing( c )
-		global counter_in_tree
-		counter_in_tree = counter_in_tree + 1
 
 
 #here starts the actual important stuff
