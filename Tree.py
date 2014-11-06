@@ -32,10 +32,11 @@ def connectDB():
                      db="tree_db",
                      use_unicode=True, 
                      charset="utf8")
+	return db
 
 
 def writeDB( child, name, parent, hasChildren ):
-	connectDB()
+	db = connectDB()
 	cur = db.cursor() 
 	cur.execute("""INSERT INTO node (child, name, parent, hasChildren) VALUES (%s, %s, %s, %s);""", (child, name, parent, hasChildren))
 	db.commit()
