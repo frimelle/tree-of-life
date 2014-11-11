@@ -2,12 +2,20 @@
 <html>
 	<head>
 		<title>Tree of Life Wikidata</title>
-		<link rel="stylesheet" href="dist/themes/default/style.min.css" /> 
-		<script src="jquery-2.1.1.min.js"></script>
+		<link rel="stylesheet" href="dist/themes/default/style.css" /> 
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 		<script src="dist/jstree.min.js"></script>
 	</head>
 	<body>
+		<form name ="languages" Method ="get" ACTION ="language.php">
+		<Input type = 'Radio' Name ='lang' value= 'en'>English
+		<Input type = 'Radio' Name ='lang' value= 'de'>Deutsch
+		<P>
+		<Input type = "Submit" Name = "Submit" Value = "Select Language">
+		</form>
+
 		<h>Wikidata's Tree of Life</h>
+
 		<div id="tree_of_life"></div>
 		<script>
 		$(function () {
