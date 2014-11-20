@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<meta content="utf-8" http-equiv="encoding">
 		<title>Tree of Life Wikidata</title>
 		<link rel="stylesheet" href="dist/themes/default/style.css" /> 
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 		<script src="dist/jstree.min.js"></script>
 	</head>
 	<body>
+		<!--
+		<div style="position:absolute; left:500px; top:100px; background-color:#F5F5F5;
+		border:1px solid #804000;"> 
+
+		<iframe src="" height="600" width="800" align="right" name="wikilinkiframe">kein Alternativtext</iframe>
+		</object>
+		</div>
+		-->
+
 		<form name ="languages" Method ="get" ACTION ="language.php">
 		<Input type = 'Radio' Name ='lang' value= 'en'>English
 		<Input type = 'Radio' Name ='lang' value= 'de'>Deutsch
+		<Input type = 'Radio' Name ='lang' value= 'es'>Espa&#241;ol
+		<Input type = 'Radio' Name ='lang' value= 'fr'>Fran&#231;ais
+		<Input type = 'Radio' Name ='lang' value= 'tr'>T&#252;rk&#231;e
+		<Input type = 'Radio' Name ='lang' value= 'pl'>Polski
+		<Input type = 'Radio' Name ='lang' value= 'ro'>Rom&#226;n&#259;
 		<P>
 		<Input type = "Submit" Name = "Submit" Value = "Select Language">
 		</form>
@@ -19,6 +35,11 @@
 		<div id="tree_of_life"></div>
 		<script>
 		$(function () {
+			/*
+			$("#jstree").jstree().bind("select_node.jstree", function (e, data) {
+				 var href = data.node.a_attr.href;       
+				 document.location.href = href;  //this works as just a hyperlink only
+			}); */
 			$('#tree_of_life').jstree({
 				'core' : {
 	  				'data' : {
@@ -29,8 +50,8 @@
       					}
 	  				}
 	  			}
-
 			});
+
 		}); 
 		</script>
 	</body>

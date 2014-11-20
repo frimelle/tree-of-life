@@ -14,6 +14,15 @@
 		return $resp; 
 	}
 
+	function get_label_url( $entity_ids, $lang ) {
+		$ids = implode("|", $entity_ids);
+		$url = 'https://www.wikidata.org/w/api.php?action=wbgetentities&ids=' . $ids . '&props=sitelinks/urls|labels&languages='. $lang . '&format=json';	
+		$content = json_decode( curl_start( $url ), true );
+		return $content; 
+	}
+
+
+	//function is not used
 	function get_label( $entity_id, $lang ){
 		$url_label = 'https://www.wikidata.org/w/api.php?action=wbgetentities&ids=' . $entity_id . '&props=labels&format=json';
 		$content = json_decode( curl_start( $url_label ), true );
@@ -25,6 +34,7 @@
 		return $label;
 	}
 
+	//function is not used
 	function get_wiki_url( $entity_id, $lang ) {
 		$url = 'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks/urls&ids=' . $entity_id . '&format=json';
 		$content = json_decode(curl_start($url), true);
@@ -35,4 +45,5 @@
 		return $url_wikipedia;
 	}
 
-?>
+	#$ids = array('Q42', 'Q10358398', 'Q8', 'Q8486');
+	#print_r(get_label_url($ids, 'en'));

@@ -21,6 +21,10 @@
         $lang = $_SESSION['lang'];
     }
 
+    ////////////////for testing stuff
+    //$_GET['entity_id'] = 'Q1002125';
+    //////////////////////////////
+
 
     $root = 'Q2382443';
     $root_name_default = 'biota';
@@ -47,30 +51,21 @@
         $qresult = mysqli_query( $db, $qstring );
         $new_child = array();
         $children = array();
+        $ids = array();
 
         while( $row = mysqli_fetch_object( $qresult ) ) {
+            
             $entity_id = $row->child;
-            //$name =  $row->name;
             $parent = $row->parent;
             $has_children = $row->hasChildren; //this is onle for Tree.py not Tree-quick.php 
 
-            $name = get_label($entity_id, $lang);
-            if ($name == "") {
-                $name = $entity_id;
-            }
-            
-            $link = get_wiki_url($entity_id, $lang);
-            if ( $link == "" ) {
-                $link = 'http://www.wikidata.org/wiki/' . $entity_id;
-            }
+            array_push($ids, $entity_id);
 
-            #set the name if there is a name in the database, if not set the entity_id as name
-            if( $name != "" ) {
-                $new_child['text'] = $name;
-            } else {
-                $new_child['text'] = $entity_id;
-            }
-            //this is onle for Tree.py not Tree-quick.php, otherwise just set $new_child['children'] = true; 
+
+            $link = 'http://www.wikidata.org/wiki/' . $entity_id;
+
+            $new_child['text'] = $entity_id;
+
             if ($has_children = 1) {
                 $new_child['children'] = true; 
             } else {
@@ -82,7 +77,27 @@
             array_push($children, $new_child);
 
         }
-        #return the correct json array
+        if( sizeof($ids) < 50) {
+            $content = get_label_url($ids, $lang);
+        } else {
+            //handle if there are more than 50 entity-ids (wikidata api takes only up to 50)
+        }
+        for ( $i = 0; $i < sizeof($children); $i++ ) {
+            
+            if( array_key_exists('labels', $content['entities'][$children[$i]['id']])) {
+                if ( array_key_exists( $lang, $content['entities'][$children[$i]['id']]['labels'] ) && array_key_exists( 'value', $content['entities'][$children[$i]['id']]['labels'][$lang] ) ) {
+                    
+                    $children[$i]['text'] = $content['entities'][$children[$i]['id']]['labels'][$lang]['value'];
+                }
+            }
+
+            if(array_key_exists('sitelinks', $content['entities'][$children[$i]['id']])) {
+                if ( array_key_exists( $lang . 'wiki', $content['entities'][$children[$i]['id']]['sitelinks'] ) && array_key_exists( 'url', $content['entities'][$children[$i]['id']]['sitelinks'][$lang . 'wiki'] ) ) {
+                    
+                    $children[$i]['a_attr']['href'] = $content['entities'][$children[$i]['id']]['sitelinks'][$lang . 'wiki']['url'];
+                }
+            }
+        }
+        
         echo json_encode($children);
     }
-?>
