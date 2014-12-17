@@ -38,7 +38,7 @@
 		if ($root_name == "") {
 			$root_name = $root_name_default;
 		} 
-		$root_link = get_wiki_url($root, $lang);
+		$root_link = get_wiki_url($root, $lang) . '?useskin=mobil&mobileaction=toggle_view_mobile';
 		if ($root_link == "") {
 			$root_link = $root_name_default;
 		} 
