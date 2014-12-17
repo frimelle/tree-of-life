@@ -8,7 +8,7 @@
 
 	require_once('api-request.php');
 
-	$db = mysqli_connect( "localhost", "root", "password", "tree_db" );
+	$db = mysqli_connect( "localhost", "root", "password", "tree_db2" );
 	if (!$db) {
 		echo mysqli_connect_error();
 		return;
@@ -28,7 +28,7 @@
 
 	$root = 'Q2382443';
 	$root_name_default = 'biota';
-	$root_link_default = 'http://www.wikidata.org/wiki/' . $root;
+	$root_link_default = 'https://m.wikidata.org/wiki/' . $root;
 
 
 	#check if this is the first node, if it is, use the root
@@ -62,7 +62,7 @@
 			array_push($ids, $entity_id);
 
 
-			$link = 'https://m.wikidata.org/wiki/' . $entity_id . '?useskin=mobil&mobileaction=toggle_view_mobile';
+			$link = 'https://m.wikidata.org/wiki/' . $entity_id;
 
 			$new_child['text'] = $entity_id;
 
