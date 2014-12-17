@@ -1,0 +1,23 @@
+/* Angaben für alle standardkonformen Browser */
+footer {
+    position:fixed;
+    bottom:0px;
+
+    text-align:center;
+    padding:1px;
+    width:100%;
+}
+
+p {
+	font-size: 0.8em;
+}
+
+/* Angaben nur für den Internet Explorer mittels Star-HTML-Hack */
+
+
+* html #footer {
+    background:#efefef;
+    height:5%;
+    text-align:center;
+    padding-top:1%;
+}
