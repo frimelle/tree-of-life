@@ -9,14 +9,13 @@
 		<script src="dist/jstree.min.js"></script>
 	</head>
 	<body>
-		<!--
+
 		<div style="position:absolute; left:500px; top:100px; background-color:#F5F5F5;
 		border:1px solid #804000;"> 
 
 		<iframe src="" height="600" width="800" align="right" name="wikilinkiframe">kein Alternativtext</iframe>
 		</object>
 		</div>
-		-->
 
 		<form name ="languages" Method ="get" ACTION ="language.php">
 		<Input type = 'Radio' Name ='lang' value= 'en'>English
@@ -50,8 +49,15 @@
       					}
 	  				}
 	  			}
-			});
+			})
+			  .on('changed.jstree', function (e, data) {
+			  	var i, j, r = [];
+			    for(i = 0, j = data.selected.length; i < j; i++) {
+			      r.push(data.instance.get_node(data.selected[i], true).find("a").attr("href"));
+			    }
 
+			    $("iframe").attr('src', r[0]);
+			  });
 		}); 
 		</script>
 	</body>
