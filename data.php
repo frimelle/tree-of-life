@@ -43,7 +43,7 @@
 			$root_link = $root_name_default;
 		} 
 
-		echo '[{"text":"' . $root_name . '","children":true, "id":"' . $root . '", "link":"' . $root_link . '"}]';
+		echo '[{"text":"' . $root_name . '","children":true, "id":"' . $root . '", "a_attr":{"href":"' . $root_link . '"}}]';
 	} else {
 		#get the entity_id of the node that was clicked
 		$parent = $_GET['entity_id'];
