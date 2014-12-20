@@ -1,8 +1,45 @@
+body{
+    /*using display:flex to make the positioning of the page elements easier*/
+    /* see this guide for details: http://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+main{
+    display: flex;
+    flex-direction: row;
+    min-height: 1000px;
+    background-color: red;
+}
+
+/* Make the main elements #tree_of_life and #wikiframe be one above the other on small screens (screens under 1000px width) instead of in line */
+@media screen and (max-width: 1000px) {
+    main{
+        flex-direction: column;
+    }
+}
+
+#tree_of_life{
+    /* tell the #tree_of_life to take as much place as the <main> coutainer allows it to  */
+    flex: 1;
+}
+
+#wikiframe{
+    /* tell the #wikiframe to take as much place as the <main> coutainer allows it to, thus sharing equally the place with #tree_of_life  */
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    background-color:#F5F5F5;
+}
+
+#wikiframe iframe{
+    flex: 1;
+}
+
 /* Angaben für alle standardkonformen Browser */
 footer {
-    position:fixed;
-    bottom:0px;
-
+    /* the footer being an element of body, it is positioned by
+     body's display:flex rule = in column, after <main>  */
     text-align:center;
     padding:1px;
     width:100%;
