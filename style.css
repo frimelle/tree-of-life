@@ -9,7 +9,6 @@ main{
     display: flex;
     flex-direction: row;
     min-height: 1000px;
-    background-color: red;
 }
 
 /* Make the main elements #tree_of_life and #wikiframe be one above the other on small screens (screens under 1000px width) instead of in line */
