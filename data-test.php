@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * only temoporary, WIP file. Shouldn't be used and deleted as soon as data.php is ready.
  * gets the data from the database needed for the tree
  * @licence GNU GPL v2+
  * @author Lucie-Aimée Kaffee
@@ -33,6 +34,18 @@
 
 	#check if this is the first node, if it is, use the root
 	if (!isset($_GET['entity_id']) || $_GET['entity_id'] == '#') {
+
+		$qstring_root= "SELECT * FROM node WHERE hasRoot=true";
+
+
+		while( $row = mysqli_fetch_object( $qresult ) ) {
+			
+			$entity_id = $row->id;
+			$parent = $row->parent;
+			$has_children = $row->hasChildren; 
+
+
+		//ALTER TEIL FÄNG HIER AN- NICHT DIE KLAMMERN VERGESSEN BEIM LÖSCHEN!
 		$root_name = get_label($root, $lang);
 		
 		if ($root_name == "") {
@@ -55,7 +68,7 @@
 
 		while( $row = mysqli_fetch_object( $qresult ) ) {
 			
-			$entity_id = $row->child;
+			$entity_id = $row->id;
 			$parent = $row->parent;
 			$has_children = $row->hasChildren; //this is onle for Tree.py not Tree-quick.php 
 

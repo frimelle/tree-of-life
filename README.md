@@ -1,6 +1,8 @@
 <h>Wikidata's Tree Of Life</h>
 ========
 
+Right now, it's not working properly/at all. Better use the biota branch until this one is working again. 
+
 Uses jstree (http://www.jstree.com/).
 Download jstree and unzip the dist folder. 
 
@@ -21,4 +23,5 @@ TODO:
 	- edit database
 	- edit Tree.py
 	- and data.php and the javascript part
+- change data.php accordingly to data-test.php and delete data-test.php
 
