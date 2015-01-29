@@ -6,6 +6,8 @@ Right now, it's not working properly/at all. Better use the biota branch until t
 Uses jstree (http://www.jstree.com/).
 Download jstree and unzip the dist folder. 
 
+You will need MYSQLdb for Tree.py and curl for data.php.
+
 To download a wikidata dump use the download.py file. (You might want to change the date to the most recent dump there is. https://dumps.wikimedia.org/other/wikidata/)
 
 Use Tree.py to populate the database.
