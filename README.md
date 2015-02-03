@@ -25,5 +25,4 @@ TODO:
 	- edit database
 	- edit Tree.py
 	- and data.php and the javascript part
-- change data.php accordingly to data-test.php and delete data-test.php
 
