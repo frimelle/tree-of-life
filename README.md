@@ -18,8 +18,8 @@ The branch 'biota' shows the tree with a single root node (biota).
 
 TODO: 
 
+- investigate on the errors in data.php
 - refactor: 
-	- javascript in own file
 	- refactor Tree.py
 - more than one tree, show every root node and tree we have so far in Wikidata
 	- edit database

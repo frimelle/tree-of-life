@@ -58,6 +58,17 @@ def traversing( node ):
 		global counter_in_tree
 		counter_in_tree = counter_in_tree + 1
 
+def rootWriteDB( node ):
+	if node.children:
+		hasChildren = True
+	else:
+		hasChildren = False
+	if node.data not in in_db:
+		writeDB(node.data, node.name, "", hasChildren, node.root)
+		in_db.append(node.data)
+		global counter_in_tree
+		counter_in_tree = counter_in_tree + 1
+
 def isInstanceOfTaxon( json_l ):
 	#check if the things we will look for are actually there (otherwise there are errors, e.g. when there is no datavalue attribute)
 		if 'claims' in json_l and 'P31' in json_l['claims'] and 'datavalue' in json_l['claims']['P31'][0]['mainsnak']:
@@ -108,7 +119,7 @@ def printChildren( parent ):
 
 
 #here starts the actual important stuff
-f = gzip.open( '20141215.json.gz' )
+f = gzip.open( 'testdata.json.gz' )
 node_dict = {} #list of the nodes already added to the tree
 root_array = [] #list of all roots in the tree
 no_some_value_node = Node( 'NoSomeValue', "", False )
@@ -167,6 +178,7 @@ for line in f:
 		else: 
 			root_array.append( child )
 			child.root = True
+			parent = ""
 			counter_roots = counter_roots + 1
 
 count_r_ch = 0
@@ -174,8 +186,12 @@ count_r_ch = 0
 
 for r in root_array:
 	#start building the actual tree (and writing in the database)
-	#if r.data == 'Q2382443':
-	traversing(r)
+	
+	#write the root nodes to the database
+	rootWriteDB( r )
+	#travese through all children and write them to the database
+	traversing( r )
+	
 	if r.children:
 		count_r_ch = count_r_ch + 1
 
@@ -184,4 +200,4 @@ print "Nodes: " + str( counter_nodes )
 print "Roots: " + str( counter_roots )
 print "Roots, excluding roots without children: " + str( count_r_ch )
 print "Nodes with parent taxon no or some value: " + str( counter_no_some )
-print "Nodes in Biota Tree: " + str( counter_in_tree )
+print "Nodes in Tree: " + str( counter_in_tree )
