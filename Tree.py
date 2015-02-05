@@ -8,23 +8,6 @@ __author__ = "Lucie-Aimée Kaffee"
 __email__ = "lucie.kaffee@gmail.com"
 __license__ = "GNU GPL v2+"
 
-
-class Node(object):
-    def __init__(self, data, name, root):
-        self.data = data
-        self.name = name
-        self.root = root
-        self.children = []
-
-    def add_child(self, obj):
-        self.children.append(obj)
-       #print 'child added'
-
-counter_no_some = 0
-counter_nodes = 0
-counter_roots = 0
-counter_in_tree = 0
-
 def connectDB():
 	db = MySQLdb.connect(host="localhost", 
 		    		 user="root", 
@@ -34,40 +17,11 @@ def connectDB():
                      charset="utf8")
 	return db
 
-
-def writeDB( id, name, parent, hasChildren, isRoot ):
+def writeDB( id, name, parent, isRoot ):
 	db = connectDB()
 	cur = db.cursor() 
-	cur.execute("""INSERT INTO node ( id, name, parent, hasChildren, isRoot ) VALUES (%s, %s, %s, %s, %s);""", (id, name, parent, hasChildren, isRoot))
+	cur.execute("""INSERT INTO node ( id, name, parent, isRoot ) VALUES (%s, %s, %s, %s);""", (id, name, parent, isRoot))
 	db.commit()
-
-in_db = []
-def traversing( node ):
-	for c in node.children:
-
-		hasChildren = False
-
-		if c.children:
-			hasChildren = True
-
-		if c.data not in in_db: 
-			writeDB(c.data, c.name, node.data, hasChildren, c.root)   #here I am writing the things to the database
-			in_db.append(c.data)
-
-		traversing( c )
-		global counter_in_tree
-		counter_in_tree = counter_in_tree + 1
-
-def rootWriteDB( node ):
-	if node.children:
-		hasChildren = True
-	else:
-		hasChildren = False
-	if node.data not in in_db:
-		writeDB(node.data, node.name, "", hasChildren, node.root)
-		in_db.append(node.data)
-		global counter_in_tree
-		counter_in_tree = counter_in_tree + 1
 
 def isInstanceOfTaxon( json_l ):
 	#check if the things we will look for are actually there (otherwise there are errors, e.g. when there is no datavalue attribute)
@@ -103,101 +57,45 @@ def hasEnLabel( json_l ):
 	else:
 		return False
 
-#for debugging
-def printChildren( parent ):
-	x = 0
-	print "parent taxon: "
-	print parent.data
-	print ' --------------------------------'
-	print "children: "
-	for c in parent.children:
-		print c.data
-		x = x + 1	
-	print ' --------------------------------'
-	print x 
-	print ' --------------------------------'
-
-
 #here starts the actual important stuff
-f = gzip.open( 'testdata.json.gz' )
-node_dict = {} #list of the nodes already added to the tree
-root_array = [] #list of all roots in the tree
-no_some_value_node = Node( 'NoSomeValue', "", False )
-node_dict['no_some'] = no_some_value_node
+def main():
 
-for line in f:
+	#writeDB('noSomeValueParent', 'no or some value', '', True)
 
-	line = line.rstrip().rstrip( ',' )
-	try:
-		json_l = json.loads(line)
-	except ValueError, e:
-		continue
+	f = gzip.open('testdata.json.gz')
 
-	if isInstanceOfTaxon( json_l ):
-		child_id = json_l['id']
-		
-		if node_dict.has_key( child_id ):
-			child = node_dict[child_id]
-			if child.name == "":
-				if hasEnLabel( json_l ):
-					name = json_l['labels']['en']['value']
-					name = name
-				else:
-					name = ""
-				child.name = name
-		else:
-			if hasEnLabel( json_l ):
+	for line in f:
+		line = line.rstrip().rstrip(',')
+		try:
+			json_l = json.loads(line)
+		except ValueError, e:
+			continue
+
+		if isInstanceOfTaxon(json_l):
+
+			child_id = json_l['id']
+			if child_id is 'Q10750326':
+				print line
+				break
+			if hasEnLabel(json_l):
 				name = json_l['labels']['en']['value']
-				name = name
+				name = unicode(name)
 			else:
 				name = ""
-			child = Node( child_id, name, False )
-			node_dict[child_id] = child
-			counter_nodes = counter_nodes + 1
-	
-		#check if there is a parent taxon (P171) for this item or if it is a subclass of antother taxon
-		if hasParentTaxon( json_l ):
-			if hasParentTaxon( json_l ):
-				parent_id = 'Q' + str( json_l['claims']['P171'][0]['mainsnak']['datavalue']['value']['numeric-id'] )
-
-			if node_dict.has_key( parent_id ):
-				parent = node_dict[parent_id]
-			else:
-				name = ""
-				parent = Node( parent_id, name, False )
-				node_dict[parent_id] = parent
-				counter_nodes = counter_nodes + 1
-					
-			parent.add_child( child )
-			
 		
-		elif hasNoSomeValueParent( json_l ):
-			no_some_value_node.add_child( child )
-			counter_no_some = counter_no_some + 1
+			#check if there is a parent taxon (P171) for this item or if it is a subclass of antother taxon
+			if hasParentTaxon(json_l): #or hasSubclassOf(json_l):
+				if hasNoSomeValueParent( json_l ):
+					#parent_id = 'noSomeValueParent'
+					writeDB(child_id, name, '', True)
 
-		else: 
-			root_array.append( child )
-			child.root = True
-			parent = ""
-			counter_roots = counter_roots + 1
+				if hasParentTaxon(json_l):
+					parent_id = 'Q' + str(json_l['claims']['P171'][0]['mainsnak']['datavalue']['value']['numeric-id'])
 
-count_r_ch = 0
+					writeDB(child_id, name, parent_id, False)
+			
+			else:
+				writeDB(child_id, name, '', True)
 
-
-for r in root_array:
-	#start building the actual tree (and writing in the database)
-	
-	#write the root nodes to the database
-	rootWriteDB( r )
-	#travese through all children and write them to the database
-	traversing( r )
-	
-	if r.children:
-		count_r_ch = count_r_ch + 1
-
-
-print "Nodes: " + str( counter_nodes )
-print "Roots: " + str( counter_roots )
-print "Roots, excluding roots without children: " + str( count_r_ch )
-print "Nodes with parent taxon no or some value: " + str( counter_no_some )
-print "Nodes in Tree: " + str( counter_in_tree )
+if __name__ == "__main__":
+    main()

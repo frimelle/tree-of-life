@@ -1,3 +1,4 @@
+#!/usr/local/bin/php
 <?php
 
 /**
@@ -25,7 +26,7 @@
 	//$_GET['entity_id'] = 'Q1';
 	//////////////////////////////
 
-	function getDataArray($nodes, $ids, $entity_id, $has_children ) {
+	function getDataArray($nodes, $ids, $entity_id ) {
 		$new_node = array();
 
 		array_push($ids, $entity_id);
@@ -33,12 +34,6 @@
 		$link = 'https://m.wikidata.org/wiki/' . $entity_id;
 
 		$new_node['text'] = $entity_id;
-
-		if ($has_children = 1) {
-			$new_node['children'] = true; 
-		} else {
-			$new_node['children'] = false;
-		}
 
 		$new_node['id'] = $entity_id;
 		$a_attr_elements['href'] = $link;
@@ -70,9 +65,8 @@
 		while( $row = mysqli_fetch_object( $qresult_root ) ) {
 			
 			$entity_id = $row->id;
-			$has_children = $row->hasChildren;
 
-			$roots = getDataArray($roots, $ids, $entity_id, $has_children);
+			$roots = getDataArray($roots, $ids, $entity_id);
 		}
 
 		$content = array();
@@ -86,17 +80,18 @@
 
 		### REFACTOR ME! PUT ME IN A FUNCTION!
 		for ( $i = 0; $i < sizeof($roots); $i++ ) {
-			if( array_key_exists( 'labels', $content['entities'][$roots[$i]['id']] ) ) {
-				if ( array_key_exists( $lang, $content['entities'][$roots[$i]['id']]['labels'] ) && array_key_exists( 'value', $content['entities'][$roots[$i]['id']]['labels'][$lang] ) ) {
-					
-					$roots[$i]['text'] = $content['entities'][$roots[$i]['id']]['labels'][$lang]['value'];
+			if( array_key_exists('entities', $content)) {
+				if( array_key_exists( 'labels', $content['entities'][$roots[$i]['id']] ) ) {
+						if ( array_key_exists( $lang, $content['entities'][$roots[$i]['id']]['labels'] ) && array_key_exists( 'value', $content['entities'][$roots[$i]['id']]['labels'][$lang] ) ) {					
+							$roots[$i]['text'] = $content['entities'][$roots[$i]['id']]['labels'][$lang]['value'];
+						}
 				}
-			}
 
-			if(array_key_exists('sitelinks', $content['entities'][$roots[$i]['id']])) {
-				if ( array_key_exists( $lang . 'wiki', $content['entities'][$roots[$i]['id']]['sitelinks'] ) && array_key_exists( 'url', $content['entities'][$roots[$i]['id']]['sitelinks'][$lang . 'wiki'] ) ) {
-					
-					$roots[$i]['a_attr']['href'] = $content['entities'][$roots[$i]['id']]['sitelinks'][$lang . 'wiki']['url'] . '?useskin=mobil&mobileaction=toggle_view_mobile';
+				if(array_key_exists('sitelinks', $content['entities'][$roots[$i]['id']])) {
+					if ( array_key_exists( $lang . 'wiki', $content['entities'][$roots[$i]['id']]['sitelinks'] ) && array_key_exists( 'url', $content['entities'][$roots[$i]['id']]['sitelinks'][$lang . 'wiki'] ) ) {
+						
+						$roots[$i]['a_attr']['href'] = $content['entities'][$roots[$i]['id']]['sitelinks'][$lang . 'wiki']['url'] . '?useskin=mobil&mobileaction=toggle_view_mobile';
+					}
 				}
 			}
 		}
@@ -114,9 +109,8 @@
 		while( $row = mysqli_fetch_object( $qresult ) ) {
 			
 			$entity_id = $row->id;
-			$has_children = $row->hasChildren;
 
-			$nodes = getDataArray($nodes, $ids, $entity_id, $has_children);
+			$nodes = getDataArray($nodes, $ids, $entity_id);
 		}
 
 		$content = array();
