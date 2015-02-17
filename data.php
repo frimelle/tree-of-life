@@ -12,9 +12,12 @@ require_once('api-request.php');
 //$_GET['entity_id'] = 'Q1';
 //////////////////////////////
 
+//start the session and actually return the json
 sessionstart();
 get_json();
 
+
+//start a session to remember the language settings
 function sessionstart() {
 	session_start();
 	if( !isset($_SESSION['lang'])) {
@@ -24,6 +27,7 @@ function sessionstart() {
 	}
 }
 
+//connect to the database.
 function connect_db() {
 	$db = mysqli_connect( "localhost", "root", "password", "tree_db2" );
 	if (!$db) {
@@ -33,6 +37,7 @@ function connect_db() {
 	return $db;
 }
 
+//get the data from db and make it to array (needed for json)
 function make_node_array( $name, $entity_id, $link ) {
 	$new_node = array();
 	$new_node['text'] = $name;
@@ -44,7 +49,8 @@ function make_node_array( $name, $entity_id, $link ) {
 	return $new_node;
 }
 
-function get_root_json() {
+//get the data of all roots as an array
+function get_root_data() {
 	$db = connect_db();
 	$qstring_root= "SELECT * FROM node WHERE isRoot=true";
 	$qresult_root = mysqli_query( $db, $qstring_root );
@@ -66,7 +72,8 @@ function get_root_json() {
 	return $roots;
 }
 
-function get_node_json() {
+//get the data from all nodes deriving from a certain parent node as array
+function get_node_data() {
 	$db = connect_db();
 	$parent = $_GET['entity_id'];
 	$qstring = "SELECT * FROM node WHERE parent='$parent'";
@@ -89,10 +96,12 @@ function get_node_json() {
 	return $nodes;
 }
 
+
+//decide wether to load the nodes or the roots and encode them into json
 function get_json() {
 	if (!isset($_GET['entity_id']) || $_GET['entity_id'] == '#') {
-		echo json_encode(get_root_json());
+		echo json_encode(get_root_data());
 	} else {
-		echo json_encode(get_node_json());
+		echo json_encode(get_node_data());
 	}
 }
