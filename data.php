@@ -1,143 +1,98 @@
-#!/usr/local/bin/php
 <?php
 
 /**
- * gets the data from the database needed for the tree
- * @licence GNU GPL v2+
- * @author Lucie-Aimée Kaffee
- **/
+* gets the data from the database needed for the tree
+* @licence GNU GPL v2+
+* @author Lucie-Aimée Kaffee
+**/
 
-	require_once('api-request.php');
+require_once('api-request.php');
 
-	$db = mysqli_connect( "localhost", "root", "password", "tree_db" );
-	if (!$db) {
-		echo mysqli_connect_error();
-		return;
-	}
-	
+////////////////for testing stuff
+//$_GET['entity_id'] = 'Q1';
+//////////////////////////////
+
+sessionstart();
+get_json();
+
+function sessionstart() {
 	session_start();
 	if( !isset($_SESSION['lang'])) {
 		$lang = 'en';
 	} else {
 		$lang = $_SESSION['lang'];
 	}
+}
 
-	////////////////for testing stuff
-	//$_GET['entity_id'] = 'Q1';
-	//////////////////////////////
+function connect_db() {
+	$db = mysqli_connect( "localhost", "root", "password", "tree_db2" );
+	if (!$db) {
+		echo mysqli_connect_error();
+		return;
+	}
+	return $db;
+}
 
-	function getDataArray($nodes, $ids, $entity_id ) {
-		$new_node = array();
+function make_node_array( $name, $entity_id, $link ) {
+	$new_node = array();
+	$new_node['text'] = $name;
+	$new_node['children'] = true;
+	$new_node['id'] = $entity_id;
+	$a_attr_elements['href'] = $link;
+	$new_node['a_attr'] = $a_attr_elements;
 
-		array_push($ids, $entity_id);
+	return $new_node;
+}
 
+function get_root_json() {
+	$db = connect_db();
+	$qstring_root= "SELECT * FROM node WHERE isRoot=true";
+	$qresult_root = mysqli_query( $db, $qstring_root );
+
+	$roots = array();
+
+	while( $row = mysqli_fetch_object( $qresult_root ) ) {
+
+		$name = $row->name;
+		if ( $name == "" ) {
+			$name = $entity_id;
+		}
+		$entity_id = $row->id;
 		$link = 'https://m.wikidata.org/wiki/' . $entity_id;
 
-		$new_node['text'] = $entity_id;
-
-		$new_node['id'] = $entity_id;
-		$a_attr_elements['href'] = $link;
-		$new_node['a_attr'] = $a_attr_elements;
-		array_push($nodes, $new_node);
-		return $nodes;
-
+		$new_root = make_node_array( $name, $entity_id, $link );
+		array_push( $roots, $new_root );
 	}
+	return $roots;
+}
 
-	function chunkArray($content, $ids, $lang) {
-		$id_arrays = array_chunk( $ids, 49 );
-		$contents = array();
+function get_node_json() {
+	$db = connect_db();
+	$parent = $_GET['entity_id'];
+	$qstring = "SELECT * FROM node WHERE parent='$parent'";
+	$qresult = mysqli_query( $db, $qstring );
 
-		foreach( $id_arrays as $ids ) {
-			array_push( $contents, get_label_url( $ids, $lang ) );
+	$nodes = array();
+
+	while( $row = mysqli_fetch_object( $qresult ) ) {
+
+		$name = $row->name;
+		if ( $name == "" ) {
+			$name = $entity_id;
 		}
-		$content = array_merge_recursive($contents);
-		return $content;
-	}
+		$entity_id = $row->id;
+		$link = 'https://m.wikidata.org/wiki/' . $entity_id;
 
-	#check if this is the first node, if it is, use the root
+		$new_node = make_node_array( $name, $entity_id, $link );
+		array_push( $nodes, $new_node );
+	}
+	return $nodes;
+}
+
+function get_json() {
 	if (!isset($_GET['entity_id']) || $_GET['entity_id'] == '#') {
-
-		$qstring_root= "SELECT * FROM node WHERE isRoot=true";
-		$qresult_root = mysqli_query( $db, $qstring_root );
-		$roots = array();
-		$ids = array();
-
-		while( $row = mysqli_fetch_object( $qresult_root ) ) {
-			
-			$entity_id = $row->id;
-
-			$roots = getDataArray($roots, $ids, $entity_id);
-		}
-
-		$content = array();
-
-		#check size of id Array for the api request (should be less than 50)
-		if( sizeof($ids) < 50) {
-			$content = get_label_url( $ids, $lang );
-		} else {
-			$content = chunkArray($content, $ids, $lang);
-		}
-
-		### REFACTOR ME! PUT ME IN A FUNCTION!
-		for ( $i = 0; $i < sizeof($roots); $i++ ) {
-			if( array_key_exists('entities', $content)) {
-				if( array_key_exists( 'labels', $content['entities'][$roots[$i]['id']] ) ) {
-						if ( array_key_exists( $lang, $content['entities'][$roots[$i]['id']]['labels'] ) && array_key_exists( 'value', $content['entities'][$roots[$i]['id']]['labels'][$lang] ) ) {					
-							$roots[$i]['text'] = $content['entities'][$roots[$i]['id']]['labels'][$lang]['value'];
-						}
-				}
-
-				if(array_key_exists('sitelinks', $content['entities'][$roots[$i]['id']])) {
-					if ( array_key_exists( $lang . 'wiki', $content['entities'][$roots[$i]['id']]['sitelinks'] ) && array_key_exists( 'url', $content['entities'][$roots[$i]['id']]['sitelinks'][$lang . 'wiki'] ) ) {
-						
-						$roots[$i]['a_attr']['href'] = $content['entities'][$roots[$i]['id']]['sitelinks'][$lang . 'wiki']['url'] . '?useskin=mobil&mobileaction=toggle_view_mobile';
-					}
-				}
-			}
-		}
-		
-		echo json_encode($roots);
-
+		echo json_encode(get_root_json());
 	} else {
-		#get the entity_id of the node that was clicked
-		$parent = $_GET['entity_id'];
-		$qstring = "SELECT * FROM node WHERE parent='$parent'";
-		$qresult = mysqli_query( $db, $qstring );
-		$nodes = array();
-		$ids = array();
-
-		while( $row = mysqli_fetch_object( $qresult ) ) {
-			
-			$entity_id = $row->id;
-
-			$nodes = getDataArray($nodes, $ids, $entity_id);
-		}
-
-		$content = array();
-
-		#check size of id Array for the api request (should be less than 50)
-		if( sizeof($ids) < 50) {
-			$content = get_label_url( $ids, $lang );
-		} else {
-			$content = chunkArray($content, $ids, $lang);
-		}
-
-		### REFACTOR ME! PUT ME IN A FUNCTION!
-		for ( $i = 0; $i < sizeof($nodes); $i++ ) {
-			if( array_key_exists( 'labels', $content['entities'][$nodes[$i]['id']] ) ) {
-				if ( array_key_exists( $lang, $content['entities'][$nodes[$i]['id']]['labels'] ) && array_key_exists( 'value', $content['entities'][$nodes[$i]['id']]['labels'][$lang] ) ) {
-					
-					$nodes[$i]['text'] = $content['entities'][$nodes[$i]['id']]['labels'][$lang]['value'];
-				}
-			}
-
-			if(array_key_exists('sitelinks', $content['entities'][$nodes[$i]['id']])) {
-				if ( array_key_exists( $lang . 'wiki', $content['entities'][$nodes[$i]['id']]['sitelinks'] ) && array_key_exists( 'url', $content['entities'][$nodes[$i]['id']]['sitelinks'][$lang . 'wiki'] ) ) {
-					
-					$nodes[$i]['a_attr']['href'] = $content['entities'][$nodes[$i]['id']]['sitelinks'][$lang . 'wiki']['url'] . '?useskin=mobil&mobileaction=toggle_view_mobile';
-				}
-			}
-		}
-		
-		echo json_encode($nodes);
+		echo json_encode(get_node_json());
 	}
+}
