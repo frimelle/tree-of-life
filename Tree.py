@@ -1,6 +1,6 @@
 # This Python file uses the following encoding: utf-8
 #!/usr/bin/python
-import gzip 
+import gzip
 import json
 import MySQLdb
 
@@ -9,17 +9,17 @@ __email__ = "lucie.kaffee@gmail.com"
 __license__ = "GNU GPL v2+"
 
 def connectDB():
-	db = MySQLdb.connect(host="localhost", 
-		    		 user="root", 
-                     passwd="password", 
+	db = MySQLdb.connect(host="localhost",
+		    		 user="root",
+                     passwd="password",
                      db="tree_db",
-                     use_unicode=True, 
+                     use_unicode=True,
                      charset="utf8")
 	return db
 
 def writeDB( id, name, parent, isRoot ):
 	db = connectDB()
-	cur = db.cursor() 
+	cur = db.cursor()
 	cur.execute("""INSERT INTO node ( id, name, parent, isRoot ) VALUES (%s, %s, %s, %s);""", (id, name, parent, isRoot))
 	db.commit()
 
@@ -28,7 +28,7 @@ def isInstanceOfTaxon( json_l ):
 		if 'claims' in json_l and 'P31' in json_l['claims'] and 'datavalue' in json_l['claims']['P31'][0]['mainsnak']:
 			#check if instance of (P31) taxon (Q16521):
 			instanceOf_id = json_l['claims']['P31'][0]['mainsnak']['datavalue']['value']['numeric-id']
-			if instanceOf_id == 16521: 
+			if instanceOf_id == 16521:
 				return True
 		else:
 			return False
@@ -82,7 +82,7 @@ def main():
 				name = unicode(name)
 			else:
 				name = ""
-		
+
 			#check if there is a parent taxon (P171) for this item or if it is a subclass of antother taxon
 			if hasParentTaxon(json_l): #or hasSubclassOf(json_l):
 				if hasNoSomeValueParent( json_l ):
@@ -93,7 +93,7 @@ def main():
 					parent_id = 'Q' + str(json_l['claims']['P171'][0]['mainsnak']['datavalue']['value']['numeric-id'])
 
 					writeDB(child_id, name, parent_id, False)
-			
+
 			else:
 				writeDB(child_id, name, '', True)
 
