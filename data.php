@@ -29,7 +29,7 @@ function sessionstart() {
 
 //connect to the database.
 function connect_db() {
-	$db = mysqli_connect( "localhost", "root", "password", "tree_db2" );
+	$db = mysqli_connect( "localhost", "root", "password", "tree_db" );
 	if (!$db) {
 		echo mysqli_connect_error();
 		return;
@@ -37,13 +37,13 @@ function connect_db() {
 	return $db;
 }
 
-//get the data from db and make it to array (needed for json)
+//get the data from db and make it to array (needed for json) and encode to UTF8 (needed by json_encode)
 function make_node_array( $name, $entity_id, $link ) {
 	$new_node = array();
-	$new_node['text'] = $name;
+	$new_node['text'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($name));
 	$new_node['children'] = true;
-	$new_node['id'] = $entity_id;
-	$a_attr_elements['href'] = $link;
+	$new_node['id'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($entity_id));
+	$a_attr_elements['href'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($link));
 	$new_node['a_attr'] = $a_attr_elements;
 
 	return $new_node;
