@@ -6,7 +6,7 @@ Right now, it's not working properly/at all. Better use the biota branch until t
 Uses jstree (http://www.jstree.com/).
 Download jstree and unzip the dist folder. 
 
-You will need MYSQLdb for Tree.py and curl for data.php.
+You will need MYSQLdb (python) for Tree.py and curl (php) for data.php.
 
 To download a wikidata dump use the download.py file. (You might want to change the date to the most recent dump there is. https://dumps.wikimedia.org/other/wikidata/)
 
@@ -18,11 +18,13 @@ The branch 'biota' shows the tree with a single root node (biota).
 
 TODO: 
 
+- already for the root nodes, data.php needs to long to get them all from the database (too many nodes)
+- works only if memory limit is manipulated (not cool)
+- handle places where sql injections are possible now!
 - investigate on the errors in data.php
 - refactor: 
-	- refactor Tree.py
-- more than one tree, show every root node and tree we have so far in Wikidata
-	- edit database
-	- edit Tree.py
-	- and data.php and the javascript part
+	- refactor data.php
+- include api requests again
+- hasChildren in or out?
+	
 
