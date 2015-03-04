@@ -9,7 +9,7 @@
 require_once('api-request.php');
 
 ////////////////for testing stuff
-//$_GET['entity_id'] = 'Q1';
+//$_GET['entity_id'] = 'Q10028';
 //////////////////////////////
 
 //start the session and actually return the json
@@ -29,6 +29,7 @@ function sessionstart() {
 
 //connect to the database.
 function connect_db() {
+	//ini_set('memory_limit', '-1');
 	$db = mysqli_connect( "localhost", "root", "password", "tree_db" );
 	if (!$db) {
 		echo mysqli_connect_error();
@@ -43,8 +44,8 @@ function make_node_array( $name, $entity_id, $link ) {
 	$new_node['text'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($name));
 	$new_node['children'] = true;
 	$new_node['id'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($entity_id));
-	$a_attr_elements['href'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($link));
-	$new_node['a_attr'] = $a_attr_elements;
+	//$a_attr_elements['href'] = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($link));
+	//$new_node['a_attr'] = $a_attr_elements;
 
 	return $new_node;
 }
@@ -64,7 +65,7 @@ function get_root_data() {
 			$name = $entity_id;
 		}
 		$entity_id = $row->id;
-		$link = 'https://m.wikidata.org/wiki/' . $entity_id;
+		//$link = 'https://m.wikidata.org/wiki/' . $entity_id;
 
 		$new_root = make_node_array( $name, $entity_id, $link );
 		array_push( $roots, $new_root );
@@ -75,6 +76,7 @@ function get_root_data() {
 //get the data from all nodes deriving from a certain parent node as array
 function get_node_data() {
 	$db = connect_db();
+	//sql injection!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	$parent = $_GET['entity_id'];
 	$qstring = "SELECT * FROM node WHERE parent='$parent'";
 	$qresult = mysqli_query( $db, $qstring );
@@ -84,6 +86,7 @@ function get_node_data() {
 	while( $row = mysqli_fetch_object( $qresult ) ) {
 
 		$name = $row->name;
+		//this if statement should be in some function!
 		if ( $name == "" ) {
 			$name = $entity_id;
 		}
