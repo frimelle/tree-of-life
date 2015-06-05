@@ -1,7 +1,9 @@
-# This Python file uses the following encoding: utf-8
 #!/usr/bin/python
+# This Python file uses the following encoding: utf-8
+
 import gzip 
 import json
+
 import MySQLdb
 
 __author__ = "Lucie-Aimée Kaffee"
